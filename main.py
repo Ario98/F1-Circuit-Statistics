@@ -12,6 +12,7 @@ dataset = pd.read_csv('data/data.csv')
 st.set_page_config(
     page_title="F1 Circuit Stats",
     page_icon="🏎️",
+    layout="wide"
 )
 
 ## Sidebar
@@ -100,6 +101,8 @@ with col7:
 
 # Data for graphing
 
+col8, col9 = st.columns(2)
+
 
 
 df_team_points = dataset.loc[(dataset['year'] == season_input) & (dataset['name_x'] == circuit_input)]
@@ -112,10 +115,12 @@ df_team_points = df_team_points[['name','points']]
 
 fig = px.bar(df_team_points, y="points", x="name",
              color="name",
+             labels={
+                     "points": "Points won",
+                     "name": "Team"
+                 },
+             title="Team performance"
              )
-st.header("Team Performance")
-st.plotly_chart(fig)
-
 
 # Qualifying vs Race position
 df_quali_race = dataset.loc[(dataset['year'] == season_input) & (dataset['name_x'] == circuit_input)]
@@ -126,10 +131,17 @@ fig1 = go.Figure(data=[
     go.Bar(name='Finishing position', x=df_quali_race['full_name'], y=df_quali_race['positionOrder'])
 ])
 # Change the bar mode
-fig1.update_layout(barmode='group')
+fig1.update_layout(barmode='group', title="Driver performance")
 fig1.update_xaxes(tickangle=60)
-st.header("Driver Performance")
-st.plotly_chart(fig1)
+st.header("Data Visualisation 📊")
 
 
-st.write(dataset.head(10))
+col8, col9 = st.columns(2)
+
+with col8:
+    st.plotly_chart(fig)
+
+with col9:
+    st.plotly_chart(fig1)
+
+#st.write(dataset.head(10))
