@@ -127,8 +127,8 @@ df_quali_race = dataset.loc[(dataset['year'] == season_input) & (dataset['name_x
 df_quali_race = df_quali_race[['full_name', 'grid', 'positionOrder']]
 
 fig1 = go.Figure(data=[
-    go.Bar(name='Starting position', x=df_quali_race['full_name'], y=df_quali_race['grid']),
-    go.Bar(name='Finishing position', x=df_quali_race['full_name'], y=df_quali_race['positionOrder'])
+    go.Bar(name='Qualifying position', x=df_quali_race['full_name'], y=df_quali_race['grid']),
+    go.Bar(name='Race position', x=df_quali_race['full_name'], y=df_quali_race['positionOrder'])
 ])
 # Change the bar mode
 fig1.update_layout(barmode='group', title="Driver performance")
@@ -144,4 +144,52 @@ with col8:
 with col9:
     st.plotly_chart(fig1)
 
-#st.write(dataset.head(10))
+
+# driver performance graph
+df_driver_performance = dataset.loc[(dataset['year'] == season_input) & (dataset['name_x'] == circuit_input)]
+df_driver_performance = df_driver_performance[['full_name', 'points', 'grid', 'fastestLapTime', 'name']]
+
+fig3 = px.scatter(df_driver_performance, x="points", y="grid", color="full_name",
+                 size="points", hover_data=['fastestLapTime', 'name'], labels = {'points':"Points scored",
+              'grid':'Qualifying position'})
+
+fig3.update_yaxes(autorange="reversed")
+fig3.update_layout(title="Driver performance (displays drivers who scored points)", legend_title="Drivers")
+st.plotly_chart(fig3)
+
+## form graph
+df_form = dataset.loc[dataset['year'] == season_input]
+
+"convert a dataframe column to date and sort by date"
+df_form['date'] = pd.to_datetime(df_form['date'])
+
+"sort a dataframe and save it to the same dataframe"
+df_form = df_form.sort_values(by=['date'])
+
+
+df_team_form = df_form.groupby(['name', 'name_x']).sum()
+
+min_repeat = 3
+vc = df_form['full_name'].value_counts()
+df_driver_form = df_form[df_form['full_name'].isin(vc[vc >= min_repeat].index)]
+
+
+df_team_form = df_team_form.reset_index()
+
+form_picker = st.selectbox("Check from for team or driver", ['Team', 'Driver'])
+if (form_picker == 'Team'):
+    team_selection = st.multiselect("Select a team", df_form['name'].unique(), default=df_form['name'].unique())
+    df_team_form = df_team_form.reset_index()
+    df_team_form = df_team_form[df_team_form['name'].isin(team_selection)]
+    fig4 = px.line(df_team_form, x="name_x", y="points", color="name")
+    fig4.add_vline(x=circuit_input, line_width=5, line_dash="dash", line_color="yellow")
+    st.plotly_chart(fig4)
+elif (form_picker == 'Driver'):
+    driver_selection = st.multiselect("Select a driver", df_form['full_name'].unique(),
+                                      default=df_form['full_name'].unique())
+    df_driver_form = df_driver_form[df_driver_form['full_name'].isin(driver_selection)]
+    fig5 = px.line(df_driver_form, x="name_x", y="points", color="full_name")
+    fig5.add_vline(x=circuit_input, line_width=5, line_dash="dash", line_color="yellow")
+    st.plotly_chart(fig5)
+
+
