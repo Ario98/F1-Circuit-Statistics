@@ -2,8 +2,6 @@ import pandas as pd
 import streamlit as st
 import numpy as np
 import plotly.express as px
-import datagetter
-import plotly.graph_objects as go
 
 # read data
 dataset = pd.read_csv('data/data.csv')
