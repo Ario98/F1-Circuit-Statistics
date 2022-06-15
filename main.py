@@ -13,6 +13,7 @@ st.set_page_config(
 )
 
 # Sidebar
+st.sidebar.image('https://1000logos.net/wp-content/uploads/2021/06/F1-logo.png')
 st.sidebar.header('Formula 1 Circuit Stats')
 circuit_input = st.sidebar.selectbox('Pick a circuit 🌎', dataset['name_x'].unique())
 
